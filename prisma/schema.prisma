@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider            = "prisma-client-js"
+  output              = "../src/generated/prisma"
+  runtime             = "nodejs"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  AGENT
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(AGENT)
+  tickets   Ticket[] @relation("AssignedTickets")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  tickets   Ticket[] @relation("ClientTickets")
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id            String         @id @default(uuid())
+  title         String
+  description   String
+  referenceCode String         @unique
+  // assignedAt    DateTime?
+  // resolvedAt    DateTime?
+  status        TicketStatus   @default(OPEN)
+  priority      TicketPriority @default(LOW)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  assignedAgentId String?
+  assignedAgent   User?   @relation("AssignedTickets", fields: [assignedAgentId], references: [id])
+
+  clientId String?
+  client   Client? @relation("ClientTickets", fields: [clientId], references: [id])
+
+  ticketHistories TicketHistory[]
+}
+
+model TicketHistory {
+  id        String         @id @default(uuid())
+  ticketId  String
+  status    TicketStatus
+  priority  TicketPriority
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+}
