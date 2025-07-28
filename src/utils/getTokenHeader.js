@@ -11,7 +11,7 @@ const getTokenHeader = (req) => {
     
   ) {
     console.log("From get Token Header >>> ",req.headers)
-    tokenHeader = req.headers.authorization.split(" ")[1];
+    tokenHeader = req.headers.authorization.split(' ')[1];
   } else {
     throw new AppError("Token not found or invalid", 401);
   }

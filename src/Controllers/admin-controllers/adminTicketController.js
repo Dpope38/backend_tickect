@@ -9,7 +9,24 @@ const prisma = new PrismaClient();
  */
 
 const getAllTickets = async (req, res) => {
-  const getallTickets = await prisma.ticket.findMany();
+  const getallTickets = await prisma.ticket.findMany({
+
+    include:{
+      client:{
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      assignedAgent: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    
+    }
+  });
   console.log(getallTickets);
   if (!getallTickets) {
     throw new Error("No tickets found");
@@ -30,7 +47,21 @@ const getTicketByRefCode = async (req, res) => {
   console.log("Ticket ID:", refCode);
 
   const ticket = await prisma.ticket.findUnique({
-    where: { referenceCode: refCode },
+    where: { referenceCode: refCode},
+    include: {
+        client: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        assignedAgent: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
   });
 
   if (!ticket) {
@@ -48,51 +79,82 @@ const getTicketByRefCode = async (req, res) => {
  * @route PATCH /api/v1/admin/tickets/:id by
  * @access Private -Admin
  */
-
 const updateSingleTicket = async (req, res) => {
-  const { refCode } = req.params; // Ticket ID from URL
-  const { status, userAgentId } = req.body; // New status and agent assignment
-  console.log("Ticket ID:", refCode);
-  console.log(`Status:${status} and ${userAgentId}`);
+  const { refCode } = req.params;
+  const { status, agentEmail } = req.body;
+  if(!refCode){
+    throw new Error("Reference code is required");}
+    console.log("RefCode:", refCode, status, agentEmail);
 
-  if (!status || !userAgentId) {
-    throw new Error("Please provide status and userAgentId");
-  }
+    /* Check if ticket exist by filtering using RefCode...
+    If it does not exist, throw an error
+    If it exists, update the ticket with the provided status and assigned agent email
+    If the ticket is not assigned to an agent and an agent email is provided, assign the agent to the ticket
+    If the status is provided and is not "PENDING", update the ticket status
+    Finally, return the updated ticket information
+    */
+   
+    const ticket = await prisma.ticket.findUnique({
+    where: { referenceCode: refCode }});
 
-  // Fetch the ticket
-  const ticket = await prisma.ticket.findUnique({
-    where: { referenceCode: refCode },
-  });
+    console.log(ticket);
+    
+    if(!ticket) {
+      throw new Error("Ticket not found");
+    }
+    let updatedTicket;
 
-  if (!ticket) {
-    throw new Error("Ticket not found");
-  }
-
-  // If no agent is assigned, assign it
-  let updatedTicket;
-  if (!ticket.userAgentId && userAgentId) {
+    // if(!ticket.assignedAgentId && agentEmail) {
+    const agent = await prisma.user.findUnique({
+    where: { email: agentEmail }});
     updatedTicket = await prisma.ticket.update({
-      where: { id },
+      where:{ referenceCode: refCode },
       data: {
-        status,
-        assignedAgentId: userAgentId,
+        assignedAgent:{
+          connect:{
+            email: agentEmail
+          }
+        }
       },
-    });
-  } else {
-    // Only update the status if agent is already assigned
+      select: {
+        assignedAgent: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      }
+    })
+  // }
+  if(status && status !== "PENDING") {
     updatedTicket = await prisma.ticket.update({
-      where: { id },
+      where: { referenceCode: refCode },
       data: {
-        status,
+        status: status,
       },
+      select: {
+        status: true,
+        assignedAgent: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      }
     });
   }
+    
+    
+    
+    console.log(updatedTicket)
+    res.status(200).json({
+      success: true,
+      data: updatedTicket,
 
-  res.status(201).json({
-    status: "success",
-    message: "Ticket updated successfully",
-    data: { updatedTicket },
-  });
-};
+    })
+  }
+  
 
-export { getAllTickets, getTicketByRefCode, updateSingleTicket };
+
+
+export { getAllTickets, getTicketByRefCode, updateSingleTicket }

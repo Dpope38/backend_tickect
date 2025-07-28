@@ -1,4 +1,5 @@
 import { PrismaClient } from "../../generated/prisma/client.js";
+import AppError from "../../utils/customError.js";
 
 /**
  * @description Get all reports
@@ -17,7 +18,8 @@ const generateSummaryReport = async () => {
       COUNT(*) AS "totalTickets",
       SUM(CASE WHEN status = 'OPEN' THEN 1 ELSE 0 END) AS "openTickets",
       SUM(CASE WHEN status = 'CLOSED' THEN 1 ELSE 0 END) AS "closedTickets",
-      SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) AS "inProgressTickets",
+      SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS "inProgressTickets",
+      SUM(CASE WHEN status = 'RESOLVED' THEN 1 ELSE 0 END) AS "resolvedTickets",
       SUM(CASE WHEN priority = 'HIGH' THEN 1 ELSE 0 END) AS "highPriorityTickets"
     FROM "Ticket"
   `;
@@ -29,6 +31,8 @@ const generateSummaryReport = async () => {
     openTickets: Number(result.openTickets),
     closedTickets: Number(result.closedTickets),
     inProgressTickets: Number(result.inProgressTickets),
+    resolvedTickets: Number(result.resolvedTickets),
+    
     highPriorityTickets: Number(result.highPriorityTickets),
   };
 };
@@ -39,7 +43,7 @@ const generateSummaryReport = async () => {
  * @access Private -Admin
  */
 
-const getSummaryReports = async (req, res) => {
+const getSummaryReports = async (_req, res) => {
   const now = Date.now();
 
   // Check if cache is valid
@@ -55,7 +59,7 @@ const getSummaryReports = async (req, res) => {
   });
 };
 
-const getAgentPerformance = async (req, res) => {
+const getAgentPerformance = async (_req, res) => {
   const agentPerformance = await prisma.user.findMany({
     where: { role: "AGENT" },
     select: {
@@ -65,6 +69,8 @@ const getAgentPerformance = async (req, res) => {
         select: {
           id: true,
           status: true,
+          referenceCode:true,
+          title:true,
           createdAt: true,
           updatedAt: true,
         },
@@ -78,7 +84,7 @@ const getAgentPerformance = async (req, res) => {
   });
 };
 
-const getClientActivitySummary = async (req, res) => {
+const getClientActivitySummary = async (_req, res) => {
   const clients = await prisma.client.findMany({
     select: {
       id: true,
@@ -87,6 +93,8 @@ const getClientActivitySummary = async (req, res) => {
       tickets: {
         select: {
           status: true,
+          referenceCode:true,
+          title:true
         },
       },
     },

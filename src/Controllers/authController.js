@@ -34,7 +34,7 @@ const loginUser = async (req, res) => {
   // 3️⃣ Check if password is correct
   const isCorrect = await bcrypt.compare(password, user.password);
   if (!isCorrect) {
-    throw AppError("Invalid Information provided", 401);
+    throw new AppError("Invalid Information provided", 401);
   }
   console.log("User found:", isCorrect);
 
@@ -54,7 +54,7 @@ const loginUser = async (req, res) => {
     data: {
       id: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role.toLowerCase(),
       name: user.name,
     },
   });

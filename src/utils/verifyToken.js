@@ -22,7 +22,7 @@ const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     throw new AppError(`Invalid token >>${error}`, 404);
   }
   if (error.name === "TokenExpiredError") {
-    throw new AppError("Token expired");
+    throw new AppError(`Token expired >>>> ${error}`);
   }}
 };
 export default verifyTokenHeader;

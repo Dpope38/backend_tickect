@@ -10,6 +10,7 @@ generator client {
   runtime             = "nodejs"
   moduleFormat        = "esm"
   importFileExtension = "js"
+  // Uncomment the following line to enable the `groupBy` preview feature
 }
 
 datasource db {
@@ -24,7 +25,7 @@ enum Role {
 
 enum TicketStatus {
   OPEN
-  IN_PROGRESS
+  PENDING
   RESOLVED
   CLOSED
 }

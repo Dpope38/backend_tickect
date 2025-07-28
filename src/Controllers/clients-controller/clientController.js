@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../generated/prisma/client.js";
+import { PrismaClient, Prisma } from "../../generated/prisma/client.js";
 import crypto from "crypto";
 // import catchAsync from "../../utils/catchAsyncHandler.js";
 // import AppError from "../../utils/customError.js";
@@ -11,7 +11,8 @@ const prisma = new PrismaClient();
  */
 
 const createClient = async (req, res) => {
-  const { name, email, description } = req.body;
+  const { name, email, description, title , priority} = req.body;
+  console.log(priority)
 
   //   // validate Input
   if (!name || !email || !description) {
@@ -19,19 +20,31 @@ const createClient = async (req, res) => {
   }
 
   const referenceCode = crypto.randomBytes(4).toString("hex").toUpperCase();
-  const ticket = await prisma.ticket.create({
-    data: {
-      title,
+  const ticket = await prisma.client.create({
+    data:{
+      name,
+      email,
+      tickets:{
+        create:[
+          {
+             title,
       description,
       referenceCode,
-      priority: priority || "LOW",
-      clientId: client.id,
+      priority: priority || Prisma.TicketPriority.LOW,
+     }
+        ]
+      }
     },
+    include:{
+      tickets: true
+    }
   });
+
+  console.log(ticket)
   //
   res.status(201).json({
     success: true,
-    data: client,
+    data: ticket,
   });
 };
 
