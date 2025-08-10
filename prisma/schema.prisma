@@ -34,6 +34,7 @@ enum TicketPriority {
   LOW
   MEDIUM
   HIGH
+  URGENT
 }
 
 model User {
@@ -60,8 +61,6 @@ model Ticket {
   title         String
   description   String
   referenceCode String         @unique
-  // assignedAt    DateTime?
-  // resolvedAt    DateTime?
   status        TicketStatus   @default(OPEN)
   priority      TicketPriority @default(LOW)
   createdAt     DateTime       @default(now())

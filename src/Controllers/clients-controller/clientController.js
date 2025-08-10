@@ -11,12 +11,12 @@ const prisma = new PrismaClient();
  */
 
 const createClient = async (req, res) => {
-  const { name, email, description, title , priority} = req.body;
+  const { name, description, title ,email, priority} = req.body;
   console.log(priority)
 
   //   // validate Input
-  if (!name || !email || !description) {
-    throw new Error("PProvide necessary fields");
+  if (!name || !title || !description || !email) {
+    throw new Error("Provide necessary fields");
   }
 
   const referenceCode = crypto.randomBytes(4).toString("hex").toUpperCase();

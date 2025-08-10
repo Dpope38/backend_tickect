@@ -104,9 +104,8 @@ const updateSingleTicket = async (req, res) => {
     }
     let updatedTicket;
 
-    // if(!ticket.assignedAgentId && agentEmail) {
-    const agent = await prisma.user.findUnique({
-    where: { email: agentEmail }});
+    if(!ticket.assignedAgentId && agentEmail) {
+   
     updatedTicket = await prisma.ticket.update({
       where:{ referenceCode: refCode },
       data: {
@@ -125,7 +124,7 @@ const updateSingleTicket = async (req, res) => {
         },
       }
     })
-  // }
+  }
   if(status && status !== "PENDING") {
     updatedTicket = await prisma.ticket.update({
       where: { referenceCode: refCode },
