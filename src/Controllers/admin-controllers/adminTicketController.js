@@ -1,4 +1,5 @@
 import { PrismaClient } from "../../generated/prisma/client.js";
+import * as z from "zod";
 
 const prisma = new PrismaClient();
 
@@ -6,11 +7,31 @@ const prisma = new PrismaClient();
  * @description Get all tickets
  * @route GET /api/v1/admin/tickets
  * @access Private -Admin
+ * 
+ *
  */
 
-const getAllTickets = async (req, res) => {
-  const getallTickets = await prisma.ticket.findMany({
 
+const getAllTickets = async (req, res) => {
+
+
+  const {status, title, priority} = req.query
+
+  const querySchema = z.object({
+    status: z.string().optional(),
+    title: z.string().optional(),
+    priority: z.string().optional(),
+  });
+const parseQuery = querySchema.parse({ status, title, priority });
+
+
+ 
+  const getallTickets = await prisma.ticket.findMany({
+where:{
+  status: parseQuery.status ? parseQuery.status : undefined,
+  title: parseQuery.title ? { contains: parseQuery.title, mode: 'insensitive' } : undefined,
+  priority: parseQuery.priority ? parseQuery.priority : undefined,
+},
     include:{
       client:{
         select: {
