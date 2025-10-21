@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 
 const getAllTickets = async (req, res) => {
 
-
+// Query parameters for filtering
   const {status, title, priority} = req.query
 
   const querySchema = z.object({
@@ -41,7 +41,7 @@ where:{
       },
       assignedAgent: {
         select: {
-          name: true,
+          fullname: true,
           email: true,
         },
       },

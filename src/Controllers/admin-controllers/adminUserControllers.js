@@ -1,5 +1,7 @@
 import { PrismaClient } from "../../generated/prisma/client.js";
 import bcrypt from "bcryptjs";
+import AppError from "../../utils/customError.js "
+import generateToken from "../../utils/generateToken.js"
 
 /**
  * @description Get all users
@@ -81,14 +83,14 @@ const deleteUserByEmail = async (req, res) => {
  */
 const updateUserById = async (req, res) => {
   const { emailId } = req.params;
-  const { name, email, role } = req.body;
-  if (!name || !email || !role) {
+  const { fullname, email, role } = req.body;
+  if (!fullname || !email || !role) {
     throw new AppError("Please provide all required fields", 400);
   }
 
   const user = await prisma.user.update({
     where: { email: emailId },
-    data: { name, email, role },
+    data: { fullname, email, role },
   });
   if (!user) {
     throw new AppError("User not found", 404);
@@ -107,31 +109,39 @@ const updateUserById = async (req, res) => {
  * @access Private -Admin
  */
 const createUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { fullname, email, password, role } = req.body;
+  console.log(fullname, email, password, role);
 
-  if (!name || !email || !password) {
+  if (!fullname || !email || !password) {
     throw new AppError("Please provide all required fields", 400);
   }
+
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
+  
   if (existingUser) {
     throw new AppError("User already exists", 400);
   }
   // Hash the password
   const generatedSalt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, generatedSalt);
+ 
+   const user = await prisma.user.create({
+     data: { fullname, email, password: hashedPassword, role:role },
+   });
 
-  const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
-  });
+   console.log(user)
 
-  res.status(201).json({
-    success: true,
-    message: "User created successfully",
-    data: user,
-  });
+   generateToken(user.email, res);
+
+ // 
+   res.status(201).json({
+     success: true,
+     message: "User created successfully",
+     data: user,
+   });
 };
 
 export {

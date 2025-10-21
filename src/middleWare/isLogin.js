@@ -15,3 +15,12 @@ const isLogin =async (req, res, next) => {
   next();
 };
 export default isLogin;
+
+/* @description authenticate user
+ * @route POST /api/v1/auth/login
+ * @access Public
+ */
+
+const login = async (res, next) => {
+  
+}

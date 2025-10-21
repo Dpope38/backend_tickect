@@ -1,11 +1,12 @@
 import express from 'express';
-import { loginUser } from '../Controllers/authController.js';
-import isLogin from "../middleWare/isLogin.js";
+import { loginUser, logout} from '../Controllers/authController.js';
+import isProtected from "../middleWare/IsProtected.js";
 
 const authRouter = express.Router();
 
 authRouter.post('/login', loginUser);
-authRouter.get("/auth-check",isLogin, (req, res)=>{
+authRouter.post('/logout', logout);
+authRouter.get("/auth-check",isProtected, (req, res)=>{
 res.json({ok:true})
 });
 

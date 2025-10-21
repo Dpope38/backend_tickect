@@ -1,5 +1,6 @@
 import express from "express";
-import isLogin from "../middleWare/isLogin.js";
+import protectedRoute from "../middleWare/IsProtected.js";
+import adminProtectedRoute from "../middleWare/adminProtectedRoute.js";
 import {
   getAllUsers,
   getUserByEmail,
@@ -18,11 +19,14 @@ import {
   getAgentPerformance,
   getClientActivitySummary,
 } from "../Controllers/admin-controllers/adminReportController.js";
+import {getAllDepartments, createDepartment} from "../Controllers/admin-controllers/adminDepartment.js";
 
 
-
+/*  */
 const adminRouter = express.Router();
-adminRouter.use(isLogin);
+adminRouter.use(protectedRoute, adminProtectedRoute ); // Apply both middlewares to all routes below
+
+/* User Route */
 adminRouter.route("/users").get(getAllUsers).post(createUser);
 
 adminRouter
@@ -31,6 +35,9 @@ adminRouter
   .delete(deleteUserByEmail)
   .put(updateUserById);
 
+
+
+/* Ticket route */
 adminRouter.route("/tickets").get(getAllTickets);
 adminRouter
   .route("/tickets/:refCode")
@@ -41,10 +48,14 @@ adminRouter
 
 
 /**
+ * Report routes
  * I still need to work on the reports and routes
  */
 adminRouter.get("/reports",getSummaryReports)
 adminRouter.get("/reports/agent-performance", getAgentPerformance);
 adminRouter.get("/reports/client-activity", getClientActivitySummary);
+
+/* Department Routes */
+adminRouter.route("/departments").get(getAllDepartments).post(createDepartment);
 
 export default adminRouter;

@@ -11,6 +11,28 @@ const prisma = new PrismaClient();
 //  * @access Private -Admin
 //  */
 
+
+/* Create a new user */
+
+const signupUser = async (req, res) => {
+  const { name, email, password, role } = req.body;
+
+  // 1️⃣ Check if all fields are provided
+  if (!name || !email || !password || !role) {
+    throw new AppError("Please provide all fields", 400);
+  }
+
+  // 2️⃣ Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (existingUser) {
+    throw new AppError("User already exists", 400);
+  }
+}
+
+/* Login new user */
+
 const loginUser = async (req, res) => {
   const  {email, password} = req.body;
   console.log("Login request body:", email);
@@ -25,7 +47,6 @@ const loginUser = async (req, res) => {
     where: { email },
   });
 
-  console.log("User found:", user);
 
   if (!user) {
     throw new AppError("Invalid information provided", 401);
@@ -36,27 +57,25 @@ const loginUser = async (req, res) => {
   if (!isCorrect) {
     throw new AppError("Invalid Information provided", 401);
   }
-  console.log("User found:", isCorrect);
 
   // 4️⃣ Generate JWT token
-  const token = generateToken(user.email);
+   generateToken(user.email, res);
   //
-  // 5️⃣ Send token in cookie (optional) + response
-  res.cookie("jwt", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
+  
   //
   res.status(200).json({
     status: "success",
-    token,
     data: {
       id: user.id,
       email: user.email,
       role: user.role.toLowerCase(),
-      name: user.name,
+      name: user.fullname,
     },
   });
 };
-export {loginUser} 
+
+const logout = async (req, res)=>{
+  res.cookie("ident", "",{maxAge:0})
+  res.status(200).json({message:"logged out successfully"})
+}
+export {loginUser, logout}

@@ -11,15 +11,24 @@ const prisma = new PrismaClient();
  */
 
 const createClient = async (req, res) => {
-  const { name, description, title ,email, priority} = req.body;
-  console.log(priority)
+  const { name, description, title ,email, priority,deptName} = req.body;
+  console.log(priority, deptName);
 
   //   // validate Input
-  if (!name || !title || !description || !email) {
+  if (!name || !title || !description || !email, !deptName) {
     throw new Error("Provide necessary fields");
   }
 
   const referenceCode = crypto.randomBytes(4).toString("hex").toUpperCase();
+  const findDepartment = await prisma.department.findUnique({
+    where:{
+       deptName
+    }
+  })
+
+  if(!findDepartment){
+    throw new Error("Department not found")
+  }
   const ticket = await prisma.client.create({
     data:{
       name,
@@ -30,15 +39,29 @@ const createClient = async (req, res) => {
              title,
       description,
       referenceCode,
+      
+
       priority: priority || Prisma.TicketPriority.LOW,
-     }
+      department : {
+        connect:{
+          id: findDepartment.id
+        }
+      },
+     
+     },
+     
+
         ]
       }
     },
     include:{
       tickets: true
-    }
-  });
+      
+      
+    },
+  
+  }
+  );
 
   console.log(ticket)
   //

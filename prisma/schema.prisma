@@ -20,7 +20,14 @@ datasource db {
 
 enum Role {
   AGENT
+  SUPERVISOR
   ADMIN
+}
+
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
 }
 
 enum TicketStatus {
@@ -38,14 +45,16 @@ enum TicketPriority {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(AGENT)
-  tickets   Ticket[] @relation("AssignedTickets")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String      @id @default(uuid())
+  fullname     String
+  email        String      @unique
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  password     String
+  role         Role        @default(AGENT)
+  tickets      Ticket[]    @relation("AssignedTickets")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Client {
@@ -65,6 +74,8 @@ model Ticket {
   priority      TicketPriority @default(LOW)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  departmentId  String?
+  department    Department?    @relation(fields: [departmentId], references: [id])
 
   // Relations
   assignedAgentId String?
@@ -74,6 +85,18 @@ model Ticket {
   client   Client? @relation("ClientTickets", fields: [clientId], references: [id])
 
   ticketHistories TicketHistory[]
+}
+
+model Department {
+  id        String           @id @default(uuid())
+  status    DepartmentStatus @default(ACTIVE)
+  tickets   Ticket[]
+  users     User[]
+  details   String?
+  teamName  String
+  deptName  String           @unique
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 }
 
 model TicketHistory {
