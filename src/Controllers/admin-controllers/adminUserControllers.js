@@ -109,8 +109,8 @@ const updateUserById = async (req, res) => {
  * @access Private -Admin
  */
 const createUser = async (req, res) => {
-  const { fullname, email, password, role } = req.body;
-  console.log(fullname, email, password, role);
+  const { fullname, email, password, role, deptName } = req.body;
+  console.log(fullname, email, password, role, deptName);
 
   if (!fullname || !email || !password) {
     throw new AppError("Please provide all required fields", 400);
@@ -127,10 +127,37 @@ const createUser = async (req, res) => {
   // Hash the password
   const generatedSalt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, generatedSalt);
- 
+  
+  const findDepartment = await prisma.department.findUnique({
+    where:{
+       deptName
+    }
+  })
+  console.log("Department found:", findDepartment);
+ if (!findDepartment){
+    throw new AppError("Department not found", 404);
+ }
+
    const user = await prisma.user.create({
-     data: { fullname, email, password: hashedPassword, role:role },
+     data: { fullname, email, password: hashedPassword, role:role , department: {
+        connect: {
+          id: findDepartment.id,
+        },
+      }, },
+      omit:{
+        password: true, // Exclude password from the response
+      },
+      include:{
+        department: {
+          select:{
+            id: true,
+            deptName: true,
+          }
+        }, // Include department details in the response
+      }
+
    });
+
 
    console.log(user)
 

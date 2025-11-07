@@ -48,7 +48,6 @@ where:{
     
     }
   });
-  console.log(getallTickets);
   if (!getallTickets) {
     throw new Error("No tickets found");
   }
@@ -65,7 +64,6 @@ where:{
  */
 const getTicketByRefCode = async (req, res) => {
   const { refCode } = req.params;
-  console.log("Ticket ID:", refCode);
 
   const ticket = await prisma.ticket.findUnique({
     where: { referenceCode: refCode},
@@ -102,10 +100,12 @@ const getTicketByRefCode = async (req, res) => {
  */
 const updateSingleTicket = async (req, res) => {
   const { refCode } = req.params;
-  const { status, agentEmail } = req.body;
+  const { status = "PENDING", agentEmail } = req.body;
+
+  console.log("Request Body +++++:", status, agentEmail);
   if(!refCode){
     throw new Error("Reference code is required");}
-    console.log("RefCode:", refCode, status, agentEmail);
+    console.log("RefCode:", refCode, req.body);
 
     /* Check if ticket exist by filtering using RefCode...
     If it does not exist, throw an error
@@ -118,16 +118,22 @@ const updateSingleTicket = async (req, res) => {
     const ticket = await prisma.ticket.findUnique({
     where: { referenceCode: refCode }});
 
-    console.log(ticket);
+    console.log("Ticket found using refCode:", ticket);
     
     if(!ticket) {
       throw new Error("Ticket not found");
     }
-    let updatedTicket;
-
-    if(!ticket.assignedAgentId && agentEmail) {
-   
-    updatedTicket = await prisma.ticket.update({
+    if (!status && !agentEmail) {
+      throw new Error("At least one of status or agentEmail must be provided");
+    }
+    if(ticket.assignedAgentId && status === "PENDING") {
+      return res.status(200).json({
+        success: true,
+        data: "Ticket already assigned to an agent",
+      }); 
+    }
+ 
+     let  updatedTicket = await prisma.ticket.update({
       where:{ referenceCode: refCode },
       data: {
         assignedAgent:{
@@ -139,15 +145,19 @@ const updateSingleTicket = async (req, res) => {
       select: {
         assignedAgent: {
           select: {
-            name: true,
+            fullname: true,
             email: true,
           },
         },
       }
     })
-  }
-  if(status && status !== "PENDING") {
-    updatedTicket = await prisma.ticket.update({
+
+
+  console.log("Updated Ticket after assigning agent:", updatedTicket);
+
+  const updateTicketStatus = async (status)=>{
+    if(status && status !== "PENDING") {
+  const updatedStatus = await prisma.ticket.update({
       where: { referenceCode: refCode },
       data: {
         status: status,
@@ -156,24 +166,28 @@ const updateSingleTicket = async (req, res) => {
         status: true,
         assignedAgent: {
           select: {
-            name: true,
+            fullname: true,
             email: true,
           },
         },
       }
     });
+  }else{
+    return{status:"PENDING"}
   }
-    
-    
-    
-    console.log(updatedTicket)
-    res.status(200).json({
-      success: true,
-      data: updatedTicket,
+  return updatedStatus;
+  }
 
-    })
-  }
-  
+  const statusUpdateResult = await updateTicketStatus(status);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      updatedTicket,
+      statusUpdateResult,
+    },
+  });
+};
 
 
 
