@@ -18,6 +18,8 @@ import {
   getSummaryReports,
   getAgentPerformance,
   getClientActivitySummary,
+adminDepartmentReport
+
 } from "../Controllers/admin-controllers/adminReportController.js";
 import {getAllDepartments, createDepartment} from "../Controllers/admin-controllers/adminDepartment.js";
 
@@ -54,6 +56,7 @@ adminRouter
 adminRouter.get("/reports",getSummaryReports)
 adminRouter.get("/reports/agent-performance", getAgentPerformance);
 adminRouter.get("/reports/client-activity", getClientActivitySummary);
+adminRouter.get("/reports/department-report", adminDepartmentReport);
 
 /* Department Routes */
 adminRouter.route("/departments").get(getAllDepartments).post(createDepartment);

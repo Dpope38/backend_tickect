@@ -59,12 +59,12 @@ const getSummaryReports = async (_req, res) => {
   });
 };
 
-const getAgentPerformance = async (_req, res) => {
+const getAgentPerformance = async (req, res) => {
   const agentPerformance = await prisma.user.findMany({
     where: { role: "AGENT" },
     select: {
       id: true,
-      name: true,
+      fullname: true,
       tickets: {
         select: {
           id: true,
@@ -129,5 +129,31 @@ const getClientActivitySummary = async (_req, res) => {
     data: { summary },
   });
 };
+
+const adminDepartmentReport = async (req, res) => {
+  // Implementation for department report
+  const departments = await prisma.department.findMany({
+    select:{
+      deptName:true,
+      tickets:{
+        select:{
+          status: true,
+          referenceCode:true,
+          title:true,
+          priority:true
+        },
+        }
+      }
+    })
+    if(!departments) {
+      throw new Error("no report on department")
+    }
+    res.status(200).json({
+      departments
+    })
+  }
+    
+
+
 //
-export { getSummaryReports, getAgentPerformance, getClientActivitySummary };
+export { getSummaryReports, getAgentPerformance, getClientActivitySummary,adminDepartmentReport };
