@@ -1,0 +1,31 @@
+version: '3.9'
+name: ticket_app_backend
+services:
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - postgres
+    command: npm start
+    restart: always
+
+    postgres:
+      container_name: ticket_postgres
+      image: postgres:16.11-alpine3.23
+      environment:
+        POSTGRES_USER: ${DATABASE_USER}
+        POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+        POSTGRES_DB: ${DATABASE_NAME}
+      ports:
+        - "5432:5432"
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+      restart: always
+
+volumes:
+  pgdata:

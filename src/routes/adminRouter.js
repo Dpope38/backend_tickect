@@ -26,13 +26,13 @@ import {getAllDepartments, createDepartment} from "../Controllers/admin-controll
 
 /*  */
 const adminRouter = express.Router();
-adminRouter.use(protectedRoute, adminProtectedRoute ); // Apply both middlewares to all routes below
+// adminRouter.use(protectedRoute, adminProtectedRoute ); // Apply both middlewares to all routes below
 
 /* User Route */
-adminRouter.route("/users").get(getAllUsers).post(createUser);
+adminRouter.route("/users", protectedRoute, adminProtectedRoute).get(getAllUsers).post(createUser);
 
 adminRouter
-  .route("/users/:emailId")
+  .route("/users/:emailId",protectedRoute, adminProtectedRoute)
   .get(getUserByEmail)
   .delete(deleteUserByEmail)
   .put(updateUserById);
@@ -40,9 +40,9 @@ adminRouter
 
 
 /* Ticket route */
-adminRouter.route("/tickets").get(getAllTickets);
+adminRouter.route("/tickets",protectedRoute, adminProtectedRoute).get(getAllTickets);
 adminRouter
-  .route("/tickets/:refCode")
+  .route("/tickets/:refCode",protectedRoute, adminProtectedRoute)
   .get(getTicketByRefCode)
   .put(updateSingleTicket);
 // .delete(deleteUserByEmail)
@@ -59,6 +59,6 @@ adminRouter.get("/reports/client-activity", getClientActivitySummary);
 adminRouter.get("/reports/department-report", adminDepartmentReport);
 
 /* Department Routes */
-adminRouter.route("/departments").get(getAllDepartments).post(createDepartment);
+adminRouter.route("/departments").get(getAllDepartments).post(protectedRoute, adminProtectedRoute, createDepartment);
 
 export default adminRouter;

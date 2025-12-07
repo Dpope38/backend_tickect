@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from "../../generated/prisma/client.js";
 import crypto from "crypto";
+import {getIoInstance}from "../../socket/events/adminEvents.js"
 // import catchAsync from "../../utils/catchAsyncHandler.js";
 // import AppError from "../../utils/customError.js";
 
@@ -11,11 +12,12 @@ const prisma = new PrismaClient();
  */
 
 const createClient = async (req, res) => {
-  const { name, description, title ,email, priority,deptName} = req.body;
-  console.log(priority, deptName);
-
+  console.log(req.body);
+    const { name, description, title ,email, priority,deptName} = req.body;
+  console.log(priority, deptName);   
+const io = getIoInstance();
   //   // validate Input
-  if (!name || !title || !description || !email, !deptName) {
+  if (!name || !title || !description || !email || !deptName) {
     throw new Error("Provide necessary fields");
   }
 
@@ -51,24 +53,30 @@ const createClient = async (req, res) => {
      },
      
 
-        ]
-      }
-    },
-    include:{
-      tickets: true
-      
+         ]
+       }
+     },
+     include:{
+       tickets: true
+    
       
     },
   
   }
   );
 
-  console.log(ticket)
+   console.log(ticket)
+   io.of("/admin").to("admin").emit("ticket-created", ticket);
+  
+
+  
   //
   res.status(201).json({
     success: true,
     data: ticket,
   });
 };
+
+
 
 export default createClient;
