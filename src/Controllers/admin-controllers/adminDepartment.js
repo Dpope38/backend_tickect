@@ -1,7 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/client.js";
 
-const prisma = new PrismaClient();
-
+import {prisma} from "../../libs/prisma"
 /* Department Controllers
 @description Get all departments
 @route GET /api/v1/admin/departments

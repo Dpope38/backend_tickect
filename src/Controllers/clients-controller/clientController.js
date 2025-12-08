@@ -1,10 +1,9 @@
-import { PrismaClient, Prisma } from "../../generated/prisma/client.js";
 import crypto from "crypto";
 import {getIoInstance}from "../../socket/events/adminEvents.js"
+import {prisma} from "../../libs/prisma"
 // import catchAsync from "../../utils/catchAsyncHandler.js";
 // import AppError from "../../utils/customError.js";
 
-const prisma = new PrismaClient();
 /**
  * @description POST CREATE CLIENT
  * @route GET /api/v1/client

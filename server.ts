@@ -4,7 +4,6 @@ import {app} from "./src/ticketApp.js"
 import {Server }from "socket.io"
 import { registerSocketHandlers } from "./src/socket/socketManager.js";
 import {setIoInstance} from "./src/socket/events/adminEvents.js"
-import express from "express"
 dotenv.config({ path: "./.env" });
 
 const server = http.createServer(app)

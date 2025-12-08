@@ -1,8 +1,8 @@
-import { PrismaClient } from "../../generated/prisma/client.js";
+import {prisma} from "../../libs/prisma"
+
 // import AppError from "../../utils/customError.js";
 // import catchAsync from "../../utils/catchAsyncHandler.js";
 
-const prisma = new PrismaClient();
 /**
  * @description GET Profile
  * @route GET /api/v1/agents/profile

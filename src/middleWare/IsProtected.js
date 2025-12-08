@@ -1,11 +1,10 @@
 import jwt from "jsonwebtoken";
 import { envConfig } from "../libs/env.js";
-import { PrismaClient } from "../generated/prisma/client.js"
+import {prisma} from "../libs/prisma.ts"
 import AppError from "../utils/customError.js";
 
 
-const prisma = new PrismaClient();
-
+  
 const protectedRoute = async (req, res, next) => {
   const token = req.cookies?.ident;
   

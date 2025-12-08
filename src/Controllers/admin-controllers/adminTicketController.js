@@ -1,7 +1,7 @@
-import { PrismaClient } from "../../generated/prisma/client.js";
+import {prisma} from "../../libs/prisma"
+
 import * as z from "zod";
 
-const prisma = new PrismaClient();
 
 /**
  * @description Get all tickets

@@ -1,9 +1,9 @@
-import { PrismaClient } from "../../src/generated/prisma/client.js";
+import {prisma} from "../libs/prisma"
+
 import bcrypt from "bcryptjs";
 import  generateToken  from "../utils/generateToken.js";
 import AppError from "../utils/customError.js";
 
-const prisma = new PrismaClient();
 
 // /**
 //  * @description Authenticate user

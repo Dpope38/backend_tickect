@@ -1,4 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/client.js";
+import {prisma} from "../../libs/prisma"
+
 import AppError from "../../utils/customError.js";
 
 /**
@@ -7,7 +8,6 @@ import AppError from "../../utils/customError.js";
  * @access Private -Admin
  */
 
-const prisma = new PrismaClient();
 let cachedReport = null;
 let lastUpdated = null;
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes

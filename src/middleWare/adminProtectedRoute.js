@@ -1,9 +1,8 @@
 // middlewares/verifyAdmin.js
 import jwt from "jsonwebtoken";
 import {envConfig} from "../libs/env.js";
-import { PrismaClient } from "../generated/prisma/client.js"
+import {prisma} from "../libs/prisma.ts"
 
-const prisma = new PrismaClient();
 
 const adminProtectedRoute =async (req, res, next) => {
   try {

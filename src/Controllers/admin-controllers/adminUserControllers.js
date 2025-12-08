@@ -1,4 +1,5 @@
-import { PrismaClient } from "../../generated/prisma/client.js";
+import {prisma} from "../../libs/prisma.ts"
+
 import bcrypt from "bcryptjs";
 import AppError from "../../utils/customError.js "
 import generateToken from "../../utils/generateToken.js"
@@ -9,7 +10,6 @@ import generateToken from "../../utils/generateToken.js"
  * @access Private -Admin
  */
 
-const prisma = new PrismaClient();
 const getAllUsers = async (req, res) => {
   const users = await prisma.user.findMany();
   console.log(users);
