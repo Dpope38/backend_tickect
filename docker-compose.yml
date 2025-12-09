@@ -5,28 +5,38 @@ services:
     build: .
     ports:
       - "3003:3003"
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=development
+  
+   
+    tty: true
+    # networks:
+    #   - prisma_network
     depends_on:
-      - postgres
-    command: npm start
-    restart: always
-
+      postgres:
+        condition: service_healthy
+   
   postgres:
-    container_name: ticket_postgres
-    image: postgres:16.11-alpine3.23
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    restart: always
+      image: postgres:16.11-alpine3.23
+      environment:
+        POSTGRES_USER: ${DATABASE_USER}
+        POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+        POSTGRES_DB: ${DATABASE_NAME}
+      ports:
+        - "5432:5432"
+      # networks:
+      #   - prisma_network
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+      restart: always
 
 volumes:
   pgdata:
+
+# networks:
+#   prisma_network:
+#   name: prisma_network
 

@@ -7,8 +7,8 @@
     "dev": "tsx --watch server.ts ",
     "build": "tsc -b",
     "start": "node dist/server.js",
-    "render:start": "npx prisma migrate deploy && npm run start",
-    "cloud:build": "npm i && npx prisma generate --no-engine && npm run build",
+    "render:start": "npx prisma db push && npm run start",
+    "cloud:build": " npx prisma generate  && npm run build",
     "test": "jest --watch"
   },
   "keywords": [],

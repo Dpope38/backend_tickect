@@ -1,4 +1,4 @@
-import {prisma} from "../../libs/prisma.ts"
+import {prisma} from "../../libs/prisma"
 
 import bcrypt from "bcryptjs";
 import AppError from "../../utils/customError.js "
