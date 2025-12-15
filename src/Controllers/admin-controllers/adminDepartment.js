@@ -1,12 +1,13 @@
 
-import {prisma} from "../../libs/prisma"
+import {prisma} from "../../libs/prisma.js"
 /* Department Controllers
 @description Get all departments
 @route GET /api/v1/admin/departments
 @access Private -Admin
 */
 const getAllDepartments = async (req, res) => {
-    const departments = await prisma.department.findMany({
+    try {
+        const departments = await prisma.department.findMany({
        include: { 
         tickets: true,
         users: true
@@ -22,6 +23,10 @@ const getAllDepartments = async (req, res) => {
         success: true,
         data: departments
     });
+    } catch (error) {
+        console.log(error)
+    }
+    
 }
 
 /* Create a new department

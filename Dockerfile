@@ -1,30 +1,70 @@
-FROM node:20-slim
+
+FROM node:20-slim AS builder
 
 # Install OpenSSL for Prisma
 RUN apt-get update -y && \
     apt-get install -y openssl && \
     rm -rf /var/lib/apt/lists/*
-
-# Set working directory
 WORKDIR /app
+#Stage 1: build the application
 
-# Copy package files
+# Define arguments for build
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+# # Stage 1: Install Dependencies
+
+# # Copy source code
 COPY package*.json ./
-
-# Install dependencies
+COPY tsconfig.json ./
 RUN npm install
-
-# Copy Prisma schema
 COPY prisma ./prisma
+COPY prisma.config.ts ./
+COPY src ./src
 
-# Copy application source code
-COPY . .
-
-# Generate Prisma Client and run build
+# # Generate Prisma Client and build TypeScript
 RUN npm run cloud:build
 
-# Expose port
+# Stage 2: Production Dependencies
+
+
+# Stage 4: Production Runtime
+FROM node:20-slim AS production
+
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+# Install OpenSSL for Prisma runtime
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+WORKDIR /app
+
+# Copy production dependencies
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy built application
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
+# Copy Prisma files for migrations
+COPY --from=builder /app/prisma ./prisma
+# COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+# Set ownership to non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose application port
 EXPOSE 3003
 
-# Start the application
-CMD ["npm", "run", "render:start"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3003/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+
+# Start application (with Prisma migration)
+# CMD ["sh", "-c", "npm run render:start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]

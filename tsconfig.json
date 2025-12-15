@@ -1,21 +1,21 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
-  "compilerOptions": {
+   "compilerOptions": {
     // File Layout
     "rootDir": ".",
     "outDir": "dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module":"esnext",
-    "target": "es2023",
     "types": [ "node"],
-   
+    "module": "ESNext",
+    "target": "ES2023",
 
     // Other Outputs
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    //  "ignoreDeprecations": "",
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
@@ -36,6 +36,7 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
+      
   "include": ["src",   "prisma.config.ts", "server.ts" ],
   "exclude": ["node_modules", "dist" ]
 }

@@ -12,9 +12,9 @@
     "test": "jest --watch"
   },
   "keywords": [],
+  "type": "module",
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",

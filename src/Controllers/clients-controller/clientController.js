@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import {getIoInstance}from "../../socket/events/adminEvents.js"
-import {prisma} from "../../libs/prisma"
+import {prisma} from "../../libs/prisma.js"
 // import catchAsync from "../../utils/catchAsyncHandler.js";
 // import AppError from "../../utils/customError.js";
 
