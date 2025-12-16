@@ -32,6 +32,8 @@ jobs:
   docker-build-push:
     needs: build
     runs-on: ubuntu
+    env:
+      DOCKER_IMAGE: olusoji/backendAPI
     steps:
     - name: checkout code
       uses: actions/checkout@v4
