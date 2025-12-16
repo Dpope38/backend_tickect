@@ -16,21 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{secrets.DATABASE_URL}}
-    # services:
-    #   postgres:
-    #     image: postgres:15
-    #     env:
-    #       POSTGRES_DB: ${{secrets.DATABASE_NAME}}
-    #       POSTGRES_USER: ${{secrets.DATABASE_USER}}
-    #       POSTGRES_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-    #     ports:
-    #       - 5432:5432
-    #     options: >-
-    #       --health-cmd="pg_isready -U postgres"
-    #       --health-interval=10s
-    #       --health-timeout=5s
-    #       --health-retries=5
-
+  
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
