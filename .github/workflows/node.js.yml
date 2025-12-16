@@ -30,7 +30,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run cloud:build --if-present
-    - run: render:start
+    - run: npm run render:start
 
 
 
