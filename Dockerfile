@@ -9,7 +9,7 @@ WORKDIR /app
 #Stage 1: build the application
 
 # Define arguments for build
-ARG DATABASE_URL
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ENV DATABASE_URL=${DATABASE_URL}
 # # Stage 1: Install Dependencies
 
@@ -22,7 +22,7 @@ COPY prisma.config.ts ./
 COPY src ./src
 
 # # Generate Prisma Client and build TypeScript
-RUN npm run cloud:build
+RUN npm run build
 
 # Stage 2: Production Dependencies
 
@@ -67,4 +67,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 
 # Start application (with Prisma migration)
 # CMD ["sh", "-c", "npm run render:start"]
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma generate && node dist/server.js"]
