@@ -18,7 +18,7 @@ const io = new Server(server, {
 })
 
   
-
+const HOST:string = process.env.HOST || 'localhost';
 setIoInstance(io);
 
 registerSocketHandlers(io);
@@ -28,6 +28,32 @@ registerSocketHandlers(io);
 
 const PORT = process.env.PORT;
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// server.listen(PORT,  () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+ let serverHandle = server.listen(PORT, HOST, () => {
+  console.log('=================================');
+  console.log(`🚀 Server started successfully`);
+  console.log(`🔗 Local: http://localhost:${PORT}`);
+  console.log(`🌐 Network: http://${HOST}:${PORT}`);
+  console.log(`❤️  Health: http://localhost:${PORT}/health`);
+  console.log('=================================');
 });
+console.log('more about the server', serverHandle);
+const gracefulShutdown = () => {
+  console.log('\n🛑 Received shutdown signal, closing server...');
+  
+  serverHandle.close(() => {
+    console.log('✅ Server closed successfully');
+    process.exit(0);
+  });
+  
+  // Force close after 10 seconds
+  setTimeout(() => {
+    console.error('⚠️  Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);

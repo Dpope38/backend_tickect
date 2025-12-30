@@ -10,10 +10,14 @@ services:
         DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
     container_name: ticket_app_backend
     restart: always        
-    ports:
-      - "3003:3003"
+   
     env_file:
       - .env
+    
+    networks:
+      - backend
+      - public
+      - private
 
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -31,13 +35,14 @@ services:
       container_name: ticket_app_postgres
       env_file:
         - .env
+     
 
       environment:
         POSTGRES_USER: ${DATABASE_USER}
         POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
         POSTGRES_DB: ${DATABASE_NAME}
-      ports:
-        - "5432:5432"
+      # ports:
+      #   - "5432:5432"
       healthcheck:
         test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
         interval: 10s
@@ -46,11 +51,15 @@ services:
       volumes:
         - pgdata:/var/lib/postgresql/data
       restart: unless-stopped
+      networks:
+        - backend
+        - private
 
 volumes:
   pgdata:
 
-# networks:
-#   prisma_network:
-#   name: prisma_network
+networks:
+  backend:
+  public:
+  private:
 

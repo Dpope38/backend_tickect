@@ -28,6 +28,13 @@ app.use("/api/v1/admin", adminRoute);
 app.use("/api/v1/agent", agentRouter);
 app.use("/api/v1/create-ticket", clientTicketRouter);
 app.use("/api/v1/auth", authRouter);
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
 
 // app.use("/{*splat}", (req, res, next) => {
 //   console.log(`Middleware executed  ${req.method} ${req.url}`);

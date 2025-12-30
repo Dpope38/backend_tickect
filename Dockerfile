@@ -16,13 +16,15 @@ ENV DATABASE_URL=${DATABASE_URL}
 # # Copy source code
 COPY package*.json ./
 COPY tsconfig.json ./
-RUN npm install
-COPY prisma ./prisma
+COPY prisma/ ./prisma
 COPY prisma.config.ts ./
-COPY src ./src
+RUN npm install
+COPY src/ ./src
 
 # # Generate Prisma Client and build TypeScript
+RUN npx prisma generate
 RUN npm run build
+COPY dist/ ./dist
 
 # Stage 2: Production Dependencies
 
@@ -46,12 +48,14 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist/ ./dist
 COPY --from=builder /app/package*.json ./
 
 # Copy Prisma files for migrations
-COPY --from=builder /app/prisma ./prisma
-# COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/prisma/* ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+RUN ls -la dist 
+RUN cat dist/server.js
 # Set ownership to non-root user
 RUN chown -R appuser:appuser /app
 
@@ -62,9 +66,8 @@ USER appuser
 EXPOSE 3003
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3003/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -f http://localhost:3003/api/v1/admin/department || exit 1
 
 # Start application (with Prisma migration)
-# CMD ["sh", "-c", "npm run render:start"]
-CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma generate && node dist/server.js"]
+
+CMD ["sh", "-c", "npm run render:start"]
